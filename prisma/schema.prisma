@@ -1,0 +1,43 @@
+datasource db {
+  provider = "postgresql"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Product {
+  id          String   @id @default(cuid())
+  slug        String   @unique @default("") // For clean, SEO-friendly URLs (e.g., /products/classic-tshirt)
+  name        String
+  description String
+  price       Float
+  images      String[] // Array of image URLs for reusability
+  category    String   @default("General")
+  stock       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @default(now()) @updatedAt
+}
+
+// ─── ADD THE USER MODEL HERE ───
+model User {
+  id            String               @id @default(cuid())
+  name          String?
+  email         String               @unique
+  password      String
+  createdAt     DateTime             @default(now())
+  
+  // ⚡ CHANGE THIS LINE: Add @default(now()) to handle your existing 3 users
+  updatedAt     DateTime             @default(now()) @updatedAt
+  
+  resetTokens   PasswordResetToken[]
+}
+
+model PasswordResetToken {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  expires   DateTime
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+}
